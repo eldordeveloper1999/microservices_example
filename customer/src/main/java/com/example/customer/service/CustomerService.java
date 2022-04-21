@@ -2,6 +2,8 @@ package com.example.customer.service;
 
 import com.example.clients.fraud.FraudCheckResponse;
 import com.example.clients.fraud.FraudClient;
+import com.example.clients.notification.NotificationClient;
+import com.example.clients.notification.NotificationRequest;
 import com.example.customer.model.Customer;
 import com.example.customer.model.CustomerRegistrationRequest;
 import com.example.customer.repository.CustomerRepository;
@@ -23,6 +25,9 @@ public class CustomerService {
     @Autowired
     FraudClient fraudClient;
 
+    @Autowired
+    NotificationClient notificationClient;
+
     public void registerCustomer(CustomerRegistrationRequest customerRequest) {
 
         Customer customer = Customer.builder()
@@ -41,7 +46,14 @@ public class CustomerService {
 
         FraudCheckResponse fraudCheckResponse = fraudClient.isFraudster(customer.getId());
 
-
+        notificationClient.sendNotification(
+                new NotificationRequest(
+                        customer.getId(),
+                        customer.getEmail(),
+                        String.format("Hi %s, welcome to Microservice app...",
+                                customer.getFirstName())
+                )
+        );
 
     }
 }
